@@ -17,3 +17,11 @@ export function save<T>(key: string, value: T): void {
     // kota dolabilir; sessizce gec
   }
 }
+
+export function remove(key: string): void {
+  try {
+    localStorage.removeItem(PREFIX + key);
+  } catch {
+    // yoksay
+  }
+}

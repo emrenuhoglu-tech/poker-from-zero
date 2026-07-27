@@ -47,6 +47,9 @@ Reading a card: rank + suit. Examples:
 
 Left to right: ace of spades, king of hearts, ten of diamonds, two of clubs.
 
+@check How many cards are in a standard deck? | 52 | 54 | 48
+@check Which suit is the most powerful? | None — all suits are equal | Spades | Hearts
+
 ---
 
 ## Chapter 3 — Hand rankings ⭐ (the most important chapter)
@@ -89,6 +92,9 @@ What if two players both hold the same pair? The **side cards (kickers)** decide
 
 > 🧠 Memorize this ranking. We'll drill it over and over in the "Hands" tab until it's automatic. Everything else sits neatly on top of it.
 
+@check Which hand is stronger? | Flush | Straight | Two Pair
+@check A Full House is made of... | three of a kind + a pair | five cards in a row | two pairs
+
 ---
 
 ## Chapter 4 — How Texas Hold'em is played
@@ -118,6 +124,9 @@ You win the pot (the money in the middle) in one of two ways:
 - By showing the **best hand at showdown**, **or**
 - By making everyone else **fold** — if no one else is left, you don't even have to show your cards.
 
+@check How many private (hole) cards do you get in Texas Hold'em? | 2 | 5 | 7
+@check The 3 shared cards dealt at once are called the... | flop | turn | river
+
 ---
 
 ## Chapter 5 — The table, the button, and the blinds
@@ -126,11 +135,14 @@ Poker is played in turn, clockwise. Who acts when is set by the **button**.
 
 - **Dealer button (BTN):** each hand, a marker points to the "dealer" seat. The button moves one seat left every hand.
 - **Small Blind (SB):** the player to the left of the button posts a **small forced bet** before seeing any cards.
-- **Big Blind (BB):** the player to their left posts a **slightly bigger** forced bet.
+- **Big Blind (BB):** the player to their left posts a **bigger** forced bet — usually exactly double the small blind.
 
 Why are there forced blinds? Because if nobody puts money in, everyone just waits for the best hand and the game freezes. The blinds put **money worth winning** in the middle, and the action starts.
 
-> 💡 Order of action: after cards are dealt, on the first round the player **left of the BB** starts; on later rounds it starts from the **SB**. The button acts **last** — which, as you'll see next, is a big advantage.
+> 💡 Order of action: **preflop**, betting starts with the player **left of the big blind**, and the **big blind acts last** — they already posted, so they get the final say (the "option"). On every **later** round (flop, turn, river), the first player left of the button starts and the **button acts last**. Acting last is a big advantage — as you'll see next.
+
+@check On the flop, turn, and river, who acts LAST? | the player on the button | the big blind | the small blind
+@check The big blind is usually... | double the small blind | the same as the small blind | half the small blind
 
 ---
 
@@ -138,8 +150,8 @@ Why are there forced blinds? Because if nobody puts money in, everyone just wait
 
 Every hand can pass through **four betting rounds**. When the action reaches you, you do one of these:
 
-- **Fold:** throw your cards away, out of this hand. You pay nothing, but you can't win either.
-- **Check:** if no one has bet, move on for free.
+- **Fold:** throw your cards away and give up the hand. You put in no more money — but anything you already bet (like a blind) stays in the pot.
+- **Check:** if there's no bet in front of you, stay in for free. (Preflop the big blind already counts as a bet, so only the big blind gets to check that first round.)
 - **Bet:** put money in the middle, telling opponents "you have to pay to continue."
 - **Call:** match an opponent's bet and stay in.
 - **Raise:** increase an opponent's bet.
@@ -147,7 +159,7 @@ Every hand can pass through **four betting rounds**. When the action reaches you
 
 The flow of rounds:
 
-1. **Preflop** — everyone sees their 2 cards, and a betting round goes around starting from the blinds.
+1. **Preflop** — everyone sees their 2 cards. The blinds are already posted, so betting starts with the player **left of the big blind**.
 2. **Flop** — 3 shared cards are dealt, new betting round.
 3. **Turn** — the 4th card, new betting round.
 4. **River** — the 5th card, final betting round.
@@ -155,11 +167,14 @@ The flow of rounds:
 
 ### A quick example hand
 
-Your hand is @hand AKs. You bet preflop and one player calls. The flop comes:
+Your hand is @hand AKs. You **raise** preflop and one player calls. The flop comes:
 
 @cards Ah 9d 4c
 
-You made a pair of Aces — strong. You bet, your opponent calls. If the turn and river don't bring scary cards, you show your hand at the river and **take the pot with your pair of Aces.** That's a whole hand.
+You made a pair of Aces — strong. You bet, your opponent calls. If the turn and river don't bring cards that could complete a flush or straight for your opponent, you show your hand at the river and **take the pot with your pair of Aces.** That's a whole hand.
+
+@check There's no bet to you and you want to stay in for free. You... | check | call | fold
+@check You throw your hand away and give up. You... | fold | check | raise
 
 ---
 
@@ -173,6 +188,9 @@ In poker, **whoever acts last has the advantage** — because they get to see wh
 - **The blinds (SB/BB):** you already put money in, but after the flop you're **always first** to act → actually a weak spot.
 
 > 🪑 Simple rule: **the later your position, the wider you can play. If you're early, be tight.** One of the biggest beginner leaks is playing junk hands from early position.
+
+@check Which position is strongest? | The button (acts last) | Early position | The small blind
+@check From EARLY position you should play... | tighter — only strong hands | wider — lots of hands | any two suited cards
 
 ---
 
@@ -191,6 +209,9 @@ Categories:
 
 The golden rule for a beginner: **play few, strong hands.** A tight beginner almost always does better than a loose one.
 
+@check As a beginner, you should play... | few, strong hands | as many hands as possible | only suited cards
+@check Which is the worst starting hand? | 7-2 offsuit | Ace-King suited | a pair of fives
+
 ---
 
 ## Chapter 9 — Why you bet: value & bluffs
@@ -204,6 +225,9 @@ There are only **two** good reasons to put money in (bet/raise):
 
 Advice for a beginner: **bet for value most of the time.** Bluff rarely, and only in spots that make sense. The most common beginner mistake: not charging enough for good hands, and bluffing bad hands too much.
 
+@check You bet hoping a WORSE hand pays you off. That's a... | value bet | bluff | check
+@check A bluff tries to... | make a better hand fold | get paid by a worse hand | build a bigger pot to win at showdown
+
 ---
 
 ## Chapter 10 — Pot odds: keep the math simple
@@ -214,14 +238,17 @@ You have a draw — say you're one card away from a flush. Should you continue? 
 
 **The rule of 2 & 4 (roughly):**
 
-- **1 card** left to come: outs × **2** ≈ your chance to hit (%).
-- **2 cards** to come: outs × **4** ≈ your chance to hit (%).
+- **1 card** still to come: outs × **2** ≈ your chance to hit (%).
+- **2 cards** still to come (you're all-in, so you'll definitely see both): outs × **4** ≈ your chance to hit (%).
 
-A 9-out flush draw on the flop (2 cards to come) → 9 × 4 ≈ **36%** to hit.
+A 9-out flush draw with **both cards still to come** → 9 × 4 ≈ **36%** to hit. (If only one card is guaranteed — a normal bet where another bet could come next street — use × 2 ≈ **18%**.)
 
-Then compare that to the **price**: the pot is 100, your opponent bet 25. If you pay 25 to win 125, you roughly need to hit about **20%** of the time to break even. 36% > 20% → **calling makes sense.**
+Now compare that to the **price**. Say the pot is 100 and your opponent moves **all-in for 25** (so you'll see both remaining cards). You call 25 to win everything out there: the 100 pot + their 25 + your own 25 = a **150** pot. Your 25 is **1 part in 6** of it (25 ÷ 150 ≈ **17%**), so you only need to win about **17%** of the time to break even. You're **36%** to hit → **36% beats 17%, easy call.**
 
 > 📐 You don't have to memorize it: the idea is — **take cheap draws, fold expensive ones.** The numbers just make "cheap or expensive?" clear.
+
+@check A flush draw (one card away from a flush) has how many outs? | 9 | 4 | 15
+@check The rule of 2 & 4 estimates... | your chance to complete a draw | the size of the pot | how much to bet
 
 ---
 
@@ -242,6 +269,9 @@ When bluffing is **foolish**:
 - Bluffing just because you're bored.
 
 > 🕵️ The most profitable read for a beginner: **is this opponent folding or not?** Against someone who never folds, **never bluff — only bet for value.** That one observation alone lifts you above average.
+
+@check Should you bluff a "calling station" who never folds? | No — just bet good hands for value | Yes — bluff them often | Yes — they fold eventually
+@check A believable bluff should... | tell a story of a strong hand | be made against many players | happen when you're bored
 
 ---
 
@@ -267,6 +297,9 @@ What makes poker profitable over the long run isn't flashy bluffs — it's **dis
 10. Never studying to improve.
 
 > 🏆 Just avoiding these 10 mistakes is enough to beat most beginners. Poker isn't simple, but it isn't complicated either: **play good hands, fold bad ones, watch your opponents, stay calm.**
+
+@check A good decision that loses one hand is... | still a good decision | a bad decision | proof you should change strategy
+@check "Tilt" means... | playing emotionally after a bad beat | a winning strategy | a type of bet
 
 ---
 

@@ -6,8 +6,9 @@ export default {
       colors: {
         // Sicak, oyunlastirilmis (Duolingo hissi) — aydinlik tema.
         cream: { 50: "#fffdf8", 100: "#fbf6ec", 200: "#f0e7d6", 300: "#e4d7bf" },
-        ink: { DEFAULT: "#3a322c", soft: "#7c6f63" },
-        grass: { DEFAULT: "#58cc02", dark: "#46a302", soft: "#e9f8d6" },
+        ink: { DEFAULT: "#3a322c", soft: "#6e6156" },
+        // `btn` = darker green for white text on buttons (WCAG); DEFAULT stays bright for fills/dots.
+        grass: { DEFAULT: "#58cc02", dark: "#46a302", btn: "#3d8f01", soft: "#e9f8d6" },
         coral: { DEFAULT: "#ff6f59", dark: "#e5573f", soft: "#ffe7e1" },
         gold: { DEFAULT: "#ffc02e", dark: "#e0a400", soft: "#fff2cf" },
         sky: { DEFAULT: "#25b4f5", dark: "#0e97d6", soft: "#dcf1fd" },

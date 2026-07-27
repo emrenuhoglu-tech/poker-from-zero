@@ -1,5 +1,5 @@
-// content MD gövdesini render eder. Desteklenen: ### altbaşlık, - madde, > ipucu,
-// @cards <spec> (kart satırı), satır içi **kalın** ve @hand <kod> (el görseli).
+// content MD gövdesini render eder. Desteklenen: ### altbaşlık, - madde, 1. sıralı,
+// > ipucu, @cards[Etiket] <spec> (kart satırı), satır içi **kalın** ve @hand <kod>.
 import type { ReactNode } from "react";
 import { CardRow, HandGlyph } from "./Cards";
 
@@ -33,34 +33,54 @@ export function LessonBody({ body }: { body: string }) {
   const lines = body.split("\n");
   const out: ReactNode[] = [];
   let bullets: string[] = [];
+  let ordered: string[] = [];
 
-  const flushBullets = (key: string) => {
-    if (!bullets.length) return;
-    const items = bullets.slice();
-    bullets = [];
-    out.push(
-      <ul key={key} className="space-y-1.5 pl-1">
-        {items.map((b, i) => (
-          <li key={i} className="flex gap-2 text-[15px] leading-relaxed text-ink">
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-grass" />
-            <span>
-              <Inline text={b} />
-            </span>
-          </li>
-        ))}
-      </ul>,
-    );
+  const flush = (key: string) => {
+    if (bullets.length) {
+      const items = bullets.slice();
+      bullets = [];
+      out.push(
+        <ul key={"u" + key} className="space-y-1.5 pl-1">
+          {items.map((b, i) => (
+            <li key={i} className="flex gap-2 text-[15px] leading-relaxed text-ink">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-grass" />
+              <span>
+                <Inline text={b} />
+              </span>
+            </li>
+          ))}
+        </ul>,
+      );
+    }
+    if (ordered.length) {
+      const items = ordered.slice();
+      ordered = [];
+      out.push(
+        <ol key={"o" + key} className="space-y-1.5">
+          {items.map((b, i) => (
+            <li key={i} className="flex gap-2.5 text-[15px] leading-relaxed text-ink">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-grass-soft text-xs font-extrabold text-grass-dark">
+                {i + 1}
+              </span>
+              <span className="pt-0.5">
+                <Inline text={b} />
+              </span>
+            </li>
+          ))}
+        </ol>,
+      );
+    }
   };
 
-  lines.forEach((raw, i) => {
-    const t = raw.trim();
+  lines.forEach((rawLine, i) => {
+    const t = rawLine.trim();
     const key = "l" + i;
     if (!t) {
-      flushBullets("u" + i);
+      flush("u" + i);
       return;
     }
     if (t.startsWith("### ")) {
-      flushBullets("u" + i);
+      flush("u" + i);
       out.push(
         <h3 key={key} className="pt-1 text-base font-extrabold text-ink">
           {t.slice(4)}
@@ -68,17 +88,18 @@ export function LessonBody({ body }: { body: string }) {
       );
       return;
     }
-    if (t.startsWith("@cards ")) {
-      flushBullets("u" + i);
+    const cardsM = t.match(/^@cards(?:\[([^\]]+)\])?\s+(.+)$/);
+    if (cardsM) {
+      flush("u" + i);
       out.push(
         <div key={key} className="rounded-2xl bg-cream-100 px-3 py-3">
-          <CardRow spec={t.slice(7)} size="md" />
+          <CardRow spec={cardsM[2]} size="md" label={cardsM[1]} />
         </div>,
       );
       return;
     }
     if (t.startsWith("> ")) {
-      flushBullets("u" + i);
+      flush("u" + i);
       out.push(
         <div key={key} className="rounded-2xl border-2 border-gold-soft bg-gold-soft/60 px-4 py-3 text-[15px] leading-relaxed text-ink">
           <Inline text={t.slice(2)} />
@@ -87,17 +108,24 @@ export function LessonBody({ body }: { body: string }) {
       return;
     }
     if (t.startsWith("- ")) {
+      if (ordered.length) flush("u" + i);
       bullets.push(t.slice(2));
       return;
     }
-    flushBullets("u" + i);
+    const ordM = t.match(/^\d+\.\s+(.*)$/);
+    if (ordM) {
+      if (bullets.length) flush("u" + i);
+      ordered.push(ordM[1]);
+      return;
+    }
+    flush("u" + i);
     out.push(
       <p key={key} className="text-[15px] leading-relaxed text-ink">
         <Inline text={t} />
       </p>,
     );
   });
-  flushBullets("uend");
+  flush("uend");
 
   return <div className="space-y-3">{out}</div>;
 }

@@ -1,13 +1,23 @@
 // Single source of truth: content/poker_101.md. Parsed at runtime.
 // Chapter = "## Chapter N — Title". The body is rendered as markdown in LessonBody.
+// A chapter may end with one or more check questions:
+//   @check Question? | Correct answer | Wrong 1 | Wrong 2
+// These are pulled out of the body and used to gate "Done".
 import raw from "../../content/poker_101.md?raw";
+
+export interface Check {
+  q: string;
+  correct: string;
+  wrong: string[];
+}
 
 export interface Module {
   id: string;
   num: number;
-  label: string; // "Bölüm 1"
-  title: string; // "Hoş geldin"
+  label: string; // "Chapter 1"
+  title: string; // "Welcome"
   body: string;
+  checks: Check[];
 }
 
 function parse(): Module[] {
@@ -22,12 +32,25 @@ function parse(): Module[] {
     const seg = heading.split(/\s+—\s+/);
     const label = seg.length > 1 ? seg[0].trim() : `Chapter ${num}`;
     const title = seg.length > 1 ? seg.slice(1).join(" — ").trim() : heading;
-    // body: everything after the heading line, edge rules (---) stripped
+
+    const checks: Check[] = [];
     const body = part
       .slice(part.indexOf("\n") + 1)
+      .split("\n")
+      .filter((line) => {
+        const t = line.trim();
+        if (t.startsWith("@check ")) {
+          const p = t.slice(7).split("|").map((s) => s.trim()).filter(Boolean);
+          if (p.length >= 3) checks.push({ q: p[0], correct: p[1], wrong: p.slice(2) });
+          return false; // strip from rendered body
+        }
+        return true;
+      })
+      .join("\n")
       .replace(/^\s*---\s*$/gm, "")
       .trim();
-    mods.push({ id: "b" + num, num, label, title, body });
+
+    mods.push({ id: "b" + num, num, label, title, body, checks });
   }
   return mods;
 }
@@ -38,7 +61,7 @@ export function moduleById(id: string): Module | undefined {
   return MODULES.find((m) => m.id === id);
 }
 
-// Plain narratable text for voice read-aloud: drop @cards lines and markdown
+// Plain narratable text for voice read-aloud: drop @cards/@check lines and markdown
 // markers, and speak @hand codes as words (AKs -> "ace king suited").
 const RANK_WORD: Record<string, string> = {
   A: "ace", K: "king", Q: "queen", J: "jack", T: "ten",
@@ -57,16 +80,19 @@ export function narratable(body: string): string {
   return body
     .split("\n")
     .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith("@cards"))
+    .filter((l) => l && !l.startsWith("@cards") && !l.startsWith("@check"))
     .map((l) =>
       l
         .replace(/^###\s+/, "")
         .replace(/^>\s+/, "")
         .replace(/^-\s+/, "")
+        .replace(/^\d+\.\s+/, "")
         .replace(/\*\*/g, "")
         .replace(/@hand\s+([A-Za-z0-9]+)/g, (_m, c) => speakHand(c))
-        .replace(/^[^\p{L}\p{N}(]+/u, "") // strip leading emoji/symbols from tips
+        .replace(/^[^\p{L}\p{N}(]+/u, "")
         .trim(),
     )
-    .join(". ");
+    .filter(Boolean)
+    .map((l) => (/[.!?:]$/.test(l) ? l : l + "."))
+    .join(" ");
 }

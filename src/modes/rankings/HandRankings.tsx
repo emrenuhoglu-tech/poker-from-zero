@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { RANKINGS, type Ranking } from "../../data/rankings";
 import { CardRow } from "../../components/Cards";
-import { addXp } from "../../lib/progress";
+import { genExample } from "../../lib/handGen";
+import { recordQuizAnswer, recordRun, getStats, type Stats } from "../../lib/progress";
 
 function twoDistinct(): [Ranking, Ranking] {
   const a = Math.floor(Math.random() * RANKINGS.length);
   let b = Math.floor(Math.random() * RANKINGS.length);
   while (b === a) b = Math.floor(Math.random() * RANKINGS.length);
   return [RANKINGS[a], RANKINGS[b]];
+}
+
+function makeQ() {
+  const [a, b] = twoDistinct();
+  return { a, b, specA: genExample(a.rank), specB: genExample(b.rank) };
 }
 
 export function HandRankings({ notify }: { notify: () => void }) {
@@ -23,12 +29,14 @@ export function HandRankings({ notify }: { notify: () => void }) {
       <div className="flex gap-2">
         <button
           onClick={() => setMode("ladder")}
+          aria-pressed={mode === "ladder"}
           className={mode === "ladder" ? "btn-grass px-4 py-2" : "btn-choice px-4 py-2"}
         >
           🪜 Ladder
         </button>
         <button
           onClick={() => setMode("quiz")}
+          aria-pressed={mode === "quiz"}
           className={mode === "quiz" ? "btn-grass px-4 py-2" : "btn-choice px-4 py-2"}
         >
           🎯 Practice
@@ -41,10 +49,12 @@ export function HandRankings({ notify }: { notify: () => void }) {
 }
 
 function Ladder() {
-  // Strongest on top (10 → 1)
-  const ordered = [...RANKINGS].reverse();
+  const ordered = [...RANKINGS].reverse(); // strongest on top
   return (
     <div className="space-y-2">
+      <div className="flex items-center justify-between px-1 text-[11px] font-bold uppercase tracking-wide text-ink-soft">
+        <span>💪 Strongest</span>
+      </div>
       {ordered.map((r) => (
         <div key={r.rank} className="card-soft p-3">
           <div className="flex items-center gap-2">
@@ -59,40 +69,70 @@ function Ladder() {
           <p className="mt-1.5 text-[13px] text-ink-soft">{r.note}</p>
         </div>
       ))}
+      <div className="px-1 text-[11px] font-bold uppercase tracking-wide text-ink-soft">Weakest</div>
     </div>
   );
 }
 
 function Quiz({ notify }: { notify: () => void }) {
-  const [pair, setPair] = useState<[Ranking, Ranking]>(() => twoDistinct());
+  const [q, setQ] = useState(makeQ);
   const [picked, setPicked] = useState<number | null>(null);
-  const [score, setScore] = useState({ ok: 0, total: 0 });
+  const [run, setRun] = useState(0);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [stats, setStats] = useState<Stats>(() => getStats());
 
+  const pair = [q.a, q.b];
+  const specs = [q.specA, q.specB];
   const answered = picked !== null;
-  const strongerIdx = pair[0].rank > pair[1].rank ? 0 : 1;
+  const strongerIdx = q.a.rank > q.b.rank ? 0 : 1;
 
   function pick(i: number) {
     if (answered) return;
     setPicked(i);
     const ok = i === strongerIdx;
-    setScore((s) => ({ ok: s.ok + (ok ? 1 : 0), total: s.total + 1 }));
-    if (ok) {
-      addXp(2);
-      notify();
-    }
+    const { awarded } = recordQuizAnswer(ok);
+    const nextRun = ok ? run + 1 : 0;
+    setRun(nextRun);
+    if (ok) recordRun(nextRun);
+    notify();
+    setStats(getStats());
+    const winner = pair[strongerIdx];
+    const loser = pair[1 - strongerIdx];
+    setMsg(
+      ok
+        ? {
+            ok: true,
+            text: awarded > 0 ? `Correct! +${awarded} XP 🎉` : "Correct! 🎉 (daily XP maxed — keep the streak going!)",
+          }
+        : {
+            ok: false,
+            text: `${winner.name} (#${winner.rank}) beats ${loser.name} (#${loser.rank}). ${winner.note}`,
+          },
+    );
   }
 
   function nextQ() {
-    setPair(twoDistinct());
+    setQ(makeQ());
     setPicked(null);
+    setMsg(null);
   }
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between text-sm">
         <span className="font-bold text-ink">Which is stronger?</span>
-        <span className="text-sm text-ink-soft">
-          {score.ok}/{score.total}
+        <span className="text-ink-soft">
+          🔥 {run} · best {stats.bestRun}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 rounded-full bg-cream-100 px-3 py-1.5 text-xs font-bold text-ink-soft">
+        <span>Daily goal</span>
+        <div className="h-2 flex-1 overflow-hidden rounded-full bg-cream-200">
+          <div className="h-full rounded-full bg-gold" style={{ width: `${Math.min(100, (stats.goalDone / stats.goalTarget) * 100)}%` }} />
+        </div>
+        <span>
+          {Math.min(stats.goalDone, stats.goalTarget)}/{stats.goalTarget}
         </span>
       </div>
 
@@ -106,14 +146,14 @@ function Quiz({ notify }: { notify: () => void }) {
             <button
               key={i}
               onClick={() => pick(i)}
-              disabled={answered}
+              aria-disabled={answered}
               className={"rounded-3xl border-2 bg-white p-3 text-left transition active:translate-y-0.5 " + ring}
             >
-              <CardRow spec={r.example} size="sm" />
+              <CardRow spec={specs[i]} size="sm" />
               {answered && (
                 <div className="mt-2 text-sm font-bold text-ink">
                   {isStronger ? "✓ " : ""}
-                  {r.name}
+                  {r.name} <span className="font-normal text-ink-soft">· #{r.rank}</span>
                 </div>
               )}
             </button>
@@ -121,17 +161,15 @@ function Quiz({ notify }: { notify: () => void }) {
         })}
       </div>
 
-      {answered && (
+      {answered && msg && (
         <>
           <div
             className={
-              "rounded-2xl px-4 py-3 text-center font-extrabold " +
-              (picked === strongerIdx ? "bg-grass-soft text-grass-dark" : "bg-coral-soft text-coral-dark")
+              "rounded-2xl px-4 py-3 text-center text-sm font-bold " +
+              (msg.ok ? "bg-grass-soft text-grass-dark" : "bg-coral-soft text-coral-dark")
             }
           >
-            {picked === strongerIdx
-              ? "Correct! +2 XP 🎉"
-              : `Close! ${pair[strongerIdx].name} beats ${pair[1 - strongerIdx].name}.`}
+            {msg.text}
           </div>
           <button onClick={nextQ} className="btn-grass w-full py-3">
             Next →

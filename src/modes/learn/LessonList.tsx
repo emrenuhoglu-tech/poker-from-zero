@@ -39,7 +39,7 @@ export function LessonList({ onOpen }: { onOpen: (id: string) => void }) {
               <div className="truncate font-bold text-ink">{m.title}</div>
             </div>
             {isNext && (
-              <span className="shrink-0 rounded-full bg-grass px-2.5 py-1 text-[11px] font-bold text-white">
+              <span className="shrink-0 rounded-full bg-grass-soft px-2.5 py-1 text-xs font-extrabold text-grass-dark">
                 Next
               </span>
             )}

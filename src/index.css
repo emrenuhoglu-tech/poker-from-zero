@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: only light;
 }
 
 html,
@@ -36,10 +36,10 @@ body {
     box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
   }
   .btn-grass {
-    @apply btn3d bg-grass;
+    @apply btn3d bg-grass-btn;
   }
   .btn-coral {
-    @apply btn3d bg-coral;
+    @apply btn3d bg-coral-dark;
   }
   .btn-sky {
     @apply btn3d bg-sky;

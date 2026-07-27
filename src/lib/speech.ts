@@ -1,7 +1,13 @@
 // Client-side voice narration via the browser SpeechSynthesis API.
 // No backend needed — works on static hosting (GitHub Pages). English voices.
+//
+// Reliability: Chrome cuts off long utterances (~15s on the Google voices) and can
+// leave onend never firing. So we split text into short per-sentence utterances and
+// queue them one at a time, advancing on end OR error. A generation token guarantees
+// stopSpeech() / a new speak() cleanly supersede any in-flight queue.
 
 let cachedVoice: SpeechSynthesisVoice | null = null;
+let generation = 0;
 
 export function supportsSpeech(): boolean {
   return typeof window !== "undefined" && "speechSynthesis" in window;
@@ -17,7 +23,6 @@ function pickVoice(): SpeechSynthesisVoice | null {
   );
 }
 
-// Voices load async in most browsers; warm the cache when they arrive.
 if (supportsSpeech()) {
   cachedVoice = pickVoice();
   window.speechSynthesis.onvoiceschanged = () => {
@@ -29,19 +34,39 @@ export function speak(text: string, opts?: { onEnd?: () => void; rate?: number }
   if (!supportsSpeech()) return;
   const synth = window.speechSynthesis;
   synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const gen = ++generation;
   const voice = cachedVoice || pickVoice();
-  if (voice) {
-    u.voice = voice;
-    u.lang = voice.lang;
-  } else {
-    u.lang = "en-US";
-  }
-  u.rate = opts?.rate ?? 0.95;
-  u.onend = () => opts?.onEnd?.();
-  synth.speak(u);
+  const chunks = (text.match(/[^.!?]+[.!?]*/g) || [text]).map((s) => s.trim()).filter(Boolean);
+  let i = 0;
+
+  const next = () => {
+    if (gen !== generation) return; // superseded by stop() or a newer speak()
+    if (i >= chunks.length) {
+      opts?.onEnd?.();
+      return;
+    }
+    const u = new SpeechSynthesisUtterance(chunks[i++]);
+    if (voice) {
+      u.voice = voice;
+      u.lang = voice.lang;
+    } else {
+      u.lang = "en-US";
+    }
+    u.rate = opts?.rate ?? 0.95;
+    u.onend = () => {
+      if (gen === generation) next();
+    };
+    u.onerror = () => {
+      if (gen === generation) next(); // skip a failed chunk, keep going
+    };
+    synth.speak(u);
+  };
+
+  next();
 }
 
 export function stopSpeech(): void {
-  if (supportsSpeech()) window.speechSynthesis.cancel();
+  if (!supportsSpeech()) return;
+  generation++; // invalidate any in-flight queue so its onend won't chain
+  window.speechSynthesis.cancel();
 }
