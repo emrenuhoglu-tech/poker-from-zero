@@ -37,3 +37,36 @@ export const MODULES: Module[] = parse();
 export function moduleById(id: string): Module | undefined {
   return MODULES.find((m) => m.id === id);
 }
+
+// Plain narratable text for voice read-aloud: drop @cards lines and markdown
+// markers, and speak @hand codes as words (AKs -> "ace king suited").
+const RANK_WORD: Record<string, string> = {
+  A: "ace", K: "king", Q: "queen", J: "jack", T: "ten",
+  "9": "nine", "8": "eight", "7": "seven", "6": "six", "5": "five",
+  "4": "four", "3": "three", "2": "two",
+};
+
+function speakHand(code: string): string {
+  const r1 = RANK_WORD[code[0]] ?? code[0];
+  const r2 = RANK_WORD[code[1]] ?? code[1];
+  const suffix = code[2] === "s" ? " suited" : code[2] === "o" ? " offsuit" : "";
+  return `${r1} ${r2}${suffix}`;
+}
+
+export function narratable(body: string): string {
+  return body
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("@cards"))
+    .map((l) =>
+      l
+        .replace(/^###\s+/, "")
+        .replace(/^>\s+/, "")
+        .replace(/^-\s+/, "")
+        .replace(/\*\*/g, "")
+        .replace(/@hand\s+([A-Za-z0-9]+)/g, (_m, c) => speakHand(c))
+        .replace(/^[^\p{L}\p{N}(]+/u, "") // strip leading emoji/symbols from tips
+        .trim(),
+    )
+    .join(". ");
+}

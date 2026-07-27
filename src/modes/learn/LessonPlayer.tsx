@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { MODULES, moduleById } from "../../content/curriculum";
+import { useEffect, useState } from "react";
+import { MODULES, moduleById, narratable } from "../../content/curriculum";
 import { LessonBody } from "../../components/LessonBody";
 import { completeModule } from "../../lib/progress";
+import { speak, stopSpeech, supportsSpeech } from "../../lib/speech";
 
 export function LessonPlayer({
   moduleId,
@@ -16,6 +17,20 @@ export function LessonPlayer({
 }) {
   const m = moduleById(moduleId);
   const [finished, setFinished] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+
+  // stop any narration when leaving the lesson
+  useEffect(() => () => stopSpeech(), []);
+
+  function toggleSpeak() {
+    if (speaking) {
+      stopSpeech();
+      setSpeaking(false);
+    } else if (m) {
+      speak(narratable(m.body), { onEnd: () => setSpeaking(false) });
+      setSpeaking(true);
+    }
+  }
 
   if (!m) {
     return (
@@ -43,10 +58,21 @@ export function LessonPlayer({
         <button onClick={onBack} className="text-sm font-bold text-ink-soft">
           ← Learn
         </button>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="text-[11px] font-bold uppercase tracking-wide text-ink-soft">{m.label}</div>
           <div className="truncate font-extrabold text-ink">{m.title}</div>
         </div>
+        {supportsSpeech() && (
+          <button
+            onClick={toggleSpeak}
+            className={
+              "shrink-0 rounded-full px-3 py-1.5 text-sm font-bold transition " +
+              (speaking ? "bg-coral text-white" : "bg-grass-soft text-grass-dark")
+            }
+          >
+            {speaking ? "⏸ Stop" : "🔊 Listen"}
+          </button>
+        )}
       </div>
 
       <div className="flex-1 space-y-3 p-4 pb-28">
