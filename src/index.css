@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #fbf6ec;
+  color: #3a322c;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+@layer components {
+  .card-soft {
+    @apply rounded-3xl border-2 border-cream-200 bg-white shadow-sm;
+  }
+
+  /* Duolingo tarzi tombul buton — alt kenar golgesi 3B hissi verir, basinca coker. */
+  .btn3d {
+    @apply relative inline-flex select-none items-center justify-center rounded-2xl font-extrabold text-white transition;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  }
+  .btn3d:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+  }
+  .btn-grass {
+    @apply btn3d bg-grass;
+  }
+  .btn-coral {
+    @apply btn3d bg-coral;
+  }
+  .btn-sky {
+    @apply btn3d bg-sky;
+  }
+  .btn-gold {
+    @apply btn3d bg-gold text-ink;
+  }
+  /* ici bos, secilebilir buton (secenek sıkları) */
+  .btn-choice {
+    @apply relative inline-flex select-none items-center justify-center rounded-2xl border-2 border-cream-200 bg-white font-bold text-ink transition;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.06);
+  }
+  .btn-choice:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop,
+  .animate-rise {
+    animation: none !important;
+  }
+}
