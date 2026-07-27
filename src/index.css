@@ -58,6 +58,13 @@ body {
   }
 }
 
+/* Keyboard focus ring (mouse clicks stay clean via :focus-visible). */
+:focus-visible {
+  outline: 3px solid #25b4f5;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-pop,
   .animate-rise {
